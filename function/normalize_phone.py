@@ -1,12 +1,12 @@
 import sqlite3
 import re
 
-def normalize(phone):
-    phone = re.sub('[ ,_.-]', '', phone)
+def normalize(phone: str) -> str:
+    phone = re.sub('[/ ,_.-]', '', phone)
     phone = phone.lower()
     return phone
 
-def lastPhone(id):
+def lastPhone(id: int) -> tuple:
     conn = sqlite3.connect('../info_perevody.db')
     cursor = conn.cursor()
     query = """
@@ -20,8 +20,10 @@ def lastPhone(id):
 
     return phone
 
-def verificationNumber(cst_dim_id, phone):
+def verificationNumber(cst_dim_id: int, phone: str) -> bool:
     phoneInDB = normalize(lastPhone(cst_dim_id)[0])
+    if not phoneInDB:
+        return False
     phone = normalize(phone)
     if phoneInDB == phone:
         return True
