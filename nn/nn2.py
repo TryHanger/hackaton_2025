@@ -1,5 +1,8 @@
 import sqlite3
 from pathlib import Path
+import datetime
+import joblib
+import json
 
 import numpy as np
 import pandas as pd
@@ -504,3 +507,39 @@ importance_df = pd.DataFrame({
 }).sort_values(by="importance", ascending=False)
 print("\n🔝 ТОП-20 ВАЖНЫХ ПРИЗНАКОВ:")
 print(importance_df.head(20).to_string(index=False))
+
+# =========================================================================================================================== #
+#                   СОХРАНЕНИЕ МОДЕЛИ И ПРЕПРОЦЕССОРА
+# =========================================================================================================================== #
+MODELS_DIR = Path("saved_models")
+MODELS_DIR.mkdir(exist_ok=True)
+current_time_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+print("\n=== СОХРАНЕНИЕ МОДЕЛИ И ПРЕПРОЦЕССОРА ===")
+
+# 1. Сохранение CatBoost модели
+model_path = MODELS_DIR / f"catboost_single_model_{current_time_str}.cbm"
+model_w.save_model(str(model_path))
+print(f"OK: CatBoost модель сохранена: {model_path.name}")
+
+# 2. Сохранение Импьютера (SimpleImputer)
+imputer_path = MODELS_DIR / f"imputer_{current_time_str}.joblib"
+joblib.dump(imputer, imputer_path)
+print(f"OK: Импьютер сохранен: {imputer_path.name}")
+
+# 3. Сохранение Метаданных (признаки и порог)
+metadata = {
+    'created_date': datetime.datetime.now().isoformat(),
+    'best_iteration': model_w.get_best_iteration(),
+    'val_auc': roc_auc_score(y_val_aligned, probs_val),
+    'features_used': features_final,
+    'categorical_features': CATEGORICAL_FEATURES,
+    'optimal_f1_threshold': best_thresh
+}
+metadata_path = MODELS_DIR / f"metadata_{current_time_str}.json"
+with open(metadata_path, 'w', encoding='utf-8') as f:
+    json.dump(metadata, f, indent=4, ensure_ascii=False)
+print(f"OK: Метаданные сохранены: {metadata_path.name}")
+
+print("\n>>> МОДЕЛЬ И ПРЕПРОЦЕССОР УСПЕШНО СОХРАНЕНЫ! <<<")
+print(f"Для использования загрузите модель через: predict.py")

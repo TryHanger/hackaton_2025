@@ -1,0 +1,39 @@
+{
+    "created_date": "2025-11-28T03:00:38.337496",
+    "best_iteration": 1206,
+    "val_auc": 0.9102492036724752,
+    "features_used": [
+        "transdate_day",
+        "transdate_hour",
+        "transdate_month",
+        "transdate_week",
+        "transdate_quarter",
+        "amount_log",
+        "monthly_os_changes",
+        "monthly_phone_model_changes",
+        "logins_last_7_days",
+        "logins_last_30_days",
+        "freq_change_7d_vs_mean",
+        "burstiness_login_interval",
+        "zscore_avg_login_interval_7d",
+        "avg_login_interval_30d_log",
+        "std_login_interval_30d_log",
+        "ewm_login_interval_7d_log",
+        "fano_factor_login_interval_log",
+        "amount_x_hour",
+        "amount_x_is_business",
+        "zscore_x_hour",
+        "amount_x_hour_x_quarter",
+        "month_x_week_x_quarter"
+    ],
+    "categorical_features": [
+        "transdate_hour",
+        "transdate_week",
+        "transdate_day",
+        "transdate_month",
+        "transdate_quarter",
+        "monthly_os_changes",
+        "monthly_phone_model_changes"
+    ],
+    "optimal_f1_threshold": 0.29000000000000004
+}

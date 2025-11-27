@@ -1,3 +1,4 @@
+import json
 import sqlite3
 from pathlib import Path
 
@@ -14,7 +15,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 script_dir = Path(__file__).parent
-db_path = script_dir.parent / 'clean_data.db'
+db_path = 'clean_data.db'
 conn = sqlite3.connect(db_path)
 # conn = sqlite3.connect("../clean_data.db")
 query = """
@@ -504,3 +505,58 @@ importance_df = pd.DataFrame({
 }).sort_values(by="importance", ascending=False)
 print("\n🔝 ТОП-20 ВАЖНЫХ ПРИЗНАКОВ:")
 print(importance_df.head(20).to_string(index=False))
+
+
+import datetime
+import joblib # Убедитесь, что этот импорт есть в начале файла
+from pathlib import Path
+
+MODELS_DIR = Path("saved_models")
+MODELS_DIR.mkdir(exist_ok=True)
+current_time_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
+# =========================================================================================================================== #
+# 🚀 3. СОХРАНЕНИЕ МОДЕЛИ И ПРЕПРОЦЕССОРА
+# =========================================================================================================================== #
+import datetime
+import joblib # Убедитесь, что этот импорт есть в начале файла
+from pathlib import Path
+
+# --- Настройки для сохранения ---
+MODELS_DIR = Path("saved_models")
+MODELS_DIR.mkdir(exist_ok=True)
+current_time_str = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+# --------------------------------
+
+print("\n--- 💾 СОХРАНЕНИЕ ОДНОЙ МОДЕЛИ И ПРЕПРОЦЕССОРА ---")
+
+# 1. Сохранение CatBoost модели
+model_path = MODELS_DIR / f"catboost_single_model_{current_time_str}.cbm"
+model_w.save_model(str(model_path))
+print(f"✅ CatBoost модель сохранена: {model_path.name}")
+
+# 2. Сохранение Импьютера (SimpleImputer)
+# Это необходимо, чтобы применять ту же медиану на новых данных
+preprocessor_path = MODELS_DIR / f"imputer_{current_time_str}.joblib"
+joblib.dump(imputer, preprocessor_path)
+print(f"✅ Импьютер сохранен: {preprocessor_path.name}")
+
+# 3. Сохранение Метаданных (признаки и порог)
+metadata = {
+    'created_date': datetime.datetime.now().isoformat(),
+    'best_iteration': model_w.get_best_iteration(),
+    'val_auc': roc_auc_score(y_val_aligned, probs_val),
+    'features_used': features_final,
+    'categorical_features': CATEGORICAL_FEATURES,
+    'optimal_f1_threshold': best_thresh
+}
+metadata_path = MODELS_DIR / f"metadata_{current_time_str}.json"
+with open(metadata_path, 'w', encoding='utf-8') as f:
+    json.dump(metadata, f, indent=4, ensure_ascii=False)
+print(f"✅ Метаданные сохранены: {metadata_path.name}")
+
+print("\n💡 Для загрузки модели используйте: \n"
+      f"   `model.load_model('{model_path.name}')`\n"
+      f"   `imputer = joblib.load('{preprocessor_path.name}')`")
+
+# =========================================================================================================================== #
